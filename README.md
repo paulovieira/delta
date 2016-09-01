@@ -4,77 +4,73 @@ Delta - template engine for incremental dom
 
 ### Introduction 
 
-This library compiles plain old html strings into the corresponding (incremental dom)[http://google.github.io/incremental-dom/] renderer function (to used with the (patch)[http://google.github.io/incremental-dom/#api/patch] function). 
+This library compiles plain old html strings into the corresponding [incremental dom](http://google.github.io/incremental-dom/) renderer function (to used with the [patch](http://google.github.io/incremental-dom/#api/patch) method from Incremental DOM). 
 
-Here is the hello world example:
+Here is the Hello World example:
 
 ```js
-var html = `
+const html = `
 <div style="color: {{ ctx.color }}">
   hello {{ ctx.name }}
 </div>
 `;
 
-var el = document.getElementByTagName("body");
-var renderer = Delta.compile(html);
-var context = { name: "earth", color: "blue"  };
-
-IncrementalDOM.patch(el, renderer, context);
+const renderer = Delta.compile(html);
 ```
 
-The `renderer` function returned by `Delta.compile`...
+The output from `Delta.compile` is the renderer function to be given to `IncrementalDOM.patch`:
+```js
+const renderer = Delta.compile(html);
 
+const el = document.getElementByTagName("body");
+const context = { name: "earth", color: "blue"  };
+
+IncrementalDOM.patch(el, renderer, context);  // change the DOM
+```
+
+We can also obtain the `renderer` source with the option `{ source: true }`:
+```js
+var rendererSrc = Delta.compile(html, { source: true });
+```
+
+In this case `rendererSrc` is the following string:
+```js
+function anonymous(ctx) {
+
+  elementOpen('div', null, null, 'style', 'color: ' + (ctx.color))
+  text('  hello ' + (ctx.name) )
+  elementClose('div')
+}
+```
 
 
 ### API
 
-The library exports only a single method: `compile`. 
+The library exports an object with a single method: `compile`.
+```
+Delta.compile(input, [options], [parserOptions])
+```
+where:
+- `input`: an html string using the Delta template syntax (see below)
+- `options`: object with options for Delta
+- `parserOptions`: object with options for the [htmlparser2](https://github.com/fb55/htmlparser2) options
 
-Delta.compile(input, [options])
+The method returns either the "compiled template" (that is, the renderer function to be used with the `patch` function) or the respective source code (if the option `source` is true).
 
-input: an html string using the Delta template syntax (see below)
-options: ...
+### Options
 
-The method returns either the "compiled template" (that is, the renderer function to be used with the patch function), or the respective source code (if the option `source` is true).
+- `source`: if true, returns the function source code (string) instead of the function object. Use this option to pre-compile the templates. Default: true.
+- `name`: name of the renderer function (useful for debugging purposes)
 
-### compile options
+
+### Parser options
+
 
 ### examples
 
 
 
-## options for the compile method
 
-source: if true, returns the function source code (string) instead of the function object. Use this option if you're pre-compiling directly the templates. 
-
-Example:
-
-```js
-
-var input = `
-<div style="color: {{ color }}">
-  hello {{ name }}
-</div>
-`
-
-var rendererSrc = Delta.compile(input, { source: true})
-```
-
-`rendererSrc` is a string with the following contents: 
-```
-(function () {
-
-  return function (ctx) {
-
-    var internals = {};
-    elementOpen('div')
-    text()
-    elementClose('div')
-  
-  };
-})()
-
-```
 
 ## arguments of the renderer functions
 

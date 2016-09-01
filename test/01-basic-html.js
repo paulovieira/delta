@@ -7,6 +7,18 @@ const suite = lab.suite;
 const test = lab.test;
 const expect = Code.expect;
 
+
+/*
+const input = `
+
+hello {{ name }}!
+hello again {{ name }}!
+
+`;
+const output = Delta.compile(input, { source: true });
+console.log('\n-------\n' + output + '\n-------\n');
+*/
+
 suite('basic usage', () => {
 
 
@@ -23,15 +35,16 @@ hello again {{ name }}!
 
 function anonymous(ctx) {
 
+'use strict'
 text('hello ' + (name) + '!')
 text('hello again ' + (name) + '!')
 }
 
         `;
 
-        const output = Delta.preCompile(input);
+        const output = Delta.compile(input, { source: true });
         //console.log('\n-------\n' + output + '\n-------\n');
-        expect(output.trim()).to.equal(idom.trim());
+        expect(output).to.equal(idom.trim());
         done();
     });
 
@@ -51,6 +64,7 @@ text('hello again ' + (name) + '!')
 
 function anonymous(ctx) {
 
+'use strict'
 elementOpen("div", null, null)
 text('    hello world!')
 elementOpen("span", null, null)
@@ -61,9 +75,9 @@ elementClose("div")
 
         `;
 
-        const output = Delta.preCompile(input);
+        const output = Delta.compile(input, { source: true });
         //console.log('\n-------\n' + output + '\n-------\n');
-        expect(output.trim()).to.equal(idom.trim());
+        expect(output).to.equal(idom.trim());
         done();
     });
 
@@ -87,6 +101,7 @@ elementClose("div")
 
 function anonymous(ctx) {
 
+'use strict'
 elementOpen("div", null, null)
 text('    hello ' + (name) + '!')
 elementOpen("span", null, null)
@@ -99,12 +114,35 @@ elementClose("div")
 
         `;
 
-        const output = Delta.preCompile(input);
+        const output = Delta.compile(input, { source: true });
         console.log('\n-------\n' + output + '\n-------\n');
-        expect(output.trim()).to.equal(idom.trim());
+        expect(output).to.equal(idom.trim());
         done();
     });
 
 
+    test('custom function name', (done) => {
+
+        const input = `
+
+hello {{ name }}!
+
+        `;
+
+        const idom = `
+
+function helloFn(ctx) {
+
+'use strict'
+text('hello ' + (name) + '!')
+}
+
+        `;
+
+        const output = Delta.compile(input, { source: true, name: 'helloFn' });
+        //console.log('\n-------\n' + output + '\n-------\n');
+        expect(output).to.equal(idom.trim());
+        done();
+    });
 
 });
