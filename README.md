@@ -59,8 +59,9 @@ The method returns either the "compiled template" (that is, the renderer functio
 
 ### Options
 
-- `source`: if true, returns the function source code (string) instead of the function object. Use this option to pre-compile the templates. Default: true.
-- `name`: name of the renderer function (useful for debugging purposes)
+- `source`: if true, returns the source code (string) of the renderer instead of the renderer itself. Use this option for template pre-compilation. Default: true.
+- `name`: name of the renderer function (useful for debugging purposes). Only has effect when retrieving the source.
+- `skipAttribute`: name of the attribute used to signal 
 
 
 ### Parser options

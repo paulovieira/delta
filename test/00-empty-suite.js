@@ -7,10 +7,9 @@ const suite = lab.suite;
 const test = lab.test;
 const expect = Code.expect;
 
-suite('attributes', () => {
+suite('...', () => {
 
-
-    test.skip('...', (done) => {
+    test('...', (done) => {
 
         const input = `
         `;
@@ -19,9 +18,10 @@ suite('attributes', () => {
 
         `;
 
-        const output = Delta.preCompile(input);
+        //const output = Delta.compile(input, { source: true });
         //console.log('\n-------\n' + output + '\n-------\n');
-        expect(output.trim()).to.equal(idom.trim());
+        //expect(output.trim()).to.equal(idom.trim());
+        expect(true).to.equal(true);
         done();
     });
 

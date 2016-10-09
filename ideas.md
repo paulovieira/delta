@@ -1,3 +1,109 @@
+-documentation: http://coffeescript.org/
+
+
+-is we have static properties, we should return a function with an outer source
+```js
+function(ctx){
+    // here we create a new statics array everytime the function is executed 
+    // this is not what we want
+    var statics = [...]
+
+    (function(){
+        IDom.elementOpen(...)
+    })()
+}
+```
+
+```js
+(function(ctx){
+    
+    var statics = [...]
+
+    return function(ctx){
+        IDom.elementOpen(...)
+    }
+})()
+```
+
+
+
+var s = `
+console.log(x);
+console.log(Date.now());
+`
+
+var s2 = `
+var statics = ['ooo']
+return function(){
+  console.log(statics[0]);
+  console.log(Date.now());    
+}
+`
+
+-placing the statics array in the scope
+    -in cjs mode: there's no need, just export the function; the statics will be private to the module
+    -in non-cjs mode: if there is no 
+
+-delta-precompile: similar to nunjucks-precompile
+    -give a directory with delta templates (in separate files)
+    -read the file contents
+    -create an object where the key is the path of the file, the value is the renderer function (Delta.compile(..., {source: true}))
+    -export using UMD (will create a global object if webpack is not used)
+    -we can then load this UMD module in webpack (so it will be all part of 1 application bundle, as before)
+-we can also call Delta.compile everytime the application is loaded (Delta.compile(..., {source: false}))
+-webpack loader: later
+...
+template: require('!delta./abc/xyz.html')
+
+this would load the contents of the file, call delta precompile and return the function
+
+
+-test "includeEmptyLines", "trimText"
+
+-test: empty attribute
+
+
+-use the options to domparser to define other tokens (instead of "< !--", for comments, etc )
+
+-using nunjucks with delta? we would use the template inheritance, blocks, includes, imports, etc to reuse helper functions or common html. We would have to change the escape characters from {{ ... }} to something else, so that it wouldn't clash
+
+-add the functionality for the 2nd argument to text (formatters)
+
+
+-definition: "parameters section": the first section of text in the template (after any eventual comments)
+examples: ...
+if the first line in the parameters section doesn't start with '@param', it will be considered regular text contents
+
+
+more tests
+-flexible parsing of elements (div without ending)
+-th option for the character that signals mixed js code (for loops) should be configurable
+
+
+
+-analogy with traditional text-based template systems
+```js
+var el = document.getElementBy('foo')
+var renderer = Handlerbars.compile(`<div>hello {{ name }}</div>`);
+$(el).html(renderer({ name: "paulo "}))
+
+// calling renderer will return the html string with the given data interpolated;
+// calling jquery's html will update the inner html of el
+```
+
+```js
+var el = document.getElementBy('foo')
+var renderer = Delta.compile(`<div>hello {{ name }}</div>`);
+IncrementalDOM.patch(el, renderer, { name: "paulo"})
+
+// here we don't call the renderer; instead we pass it to IDom's patch function, will will execute it to update the inner html of el
+```
+
+-name: incremental-dom-delta
+
+-set default options (options that don't change after multiple calls to Delta.compile)
+
+
 Template.configure({
     // reference to the incremental dom library
     idom: require("incremental-dom")
