@@ -4,6 +4,7 @@ module.exports = {
     "rules": {
         "prefer-arrow-callback": ["off"],
         "dot-notation": ["off"],
-        "no-trailing-spaces": ["off"]
+        "no-trailing-spaces": ["off"],
+        "space-before-function-paren": ["off"]
     }
 }

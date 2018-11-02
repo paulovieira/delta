@@ -1,3 +1,5 @@
+'use strict';
+
 const Lab = require('lab');
 const Code = require('code');
 const Delta = require('../lib');
@@ -12,17 +14,17 @@ suite('library prefix', () => {
     test('output a custom prefix (global namespace object) for the incremental dom functions' , (done) => {
 
         const input = `
-hello {{ name }}!
-<b>hello again {{ name }}!</b>
+hello {{ ctx.name }}!
+<b>hello again {{ ctx.name }}!</b>
         `;
 
         const idom = `
 function (ctx) {
 
 "use strict"
-MyIncrementalDOM.text("hello " + (name) + "!")
+MyIncrementalDOM.text("hello " + (ctx.name) + "!")
 MyIncrementalDOM.elementOpen("b")
-MyIncrementalDOM.text("hello again " + (name) + "!")
+MyIncrementalDOM.text("hello again " + (ctx.name) + "!")
 MyIncrementalDOM.elementClose("b")
 }
         `;
@@ -37,17 +39,17 @@ MyIncrementalDOM.elementClose("b")
     test('remove the custom prefix (no global namespace)' , (done) => {
 
         const input = `
-hello {{ name }}!
-<b>hello again {{ name }}!</b>
+hello {{ ctx.name }}!
+<b>hello again {{ ctx.name }}!</b>
         `;
 
         const idom = `
 function (ctx) {
 
 "use strict"
-text("hello " + (name) + "!")
+text("hello " + (ctx.name) + "!")
 elementOpen("b")
-text("hello again " + (name) + "!")
+text("hello again " + (ctx.name) + "!")
 elementClose("b")
 }
         `;
@@ -59,7 +61,7 @@ elementClose("b")
     });
 
 
-    test('output a common js module using the option "cjs": true' , (done) => {
+    test('can output a common js module using the option "cjs": true (and global will be ignored)'  , (done) => {
 
         // will require "incremental-dom", the official name in npm, 
         // will ignore the the "global" option (if it was set)
@@ -89,8 +91,6 @@ __IDomLib__.elementClose("b")
 
     test('The "cjs" option requires the option "source": true' , (done) => {
 
-        // will require "incremental-dom", the official name in npm, 
-        // will ignore the the "global" option (if it was set)
         const input = `
 hello {{ name }}!
 <b>hello again {{ name }}!</b>

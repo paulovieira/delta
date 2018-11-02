@@ -1,3 +1,5 @@
+'use strict';
+
 const Lab = require('lab');
 const Code = require('code');
 const Delta = require('../lib');
@@ -13,21 +15,24 @@ suite('basic usage', () => {
     test('plain interpolation, no html', (done) => {
 
         const input = `
-hello {{ name }}!
-{{ name }}, how are you?
+hello {{ ctx.name }}!
+{{ ctx.name }}, how are you?
+goodbye {{ ctx.name }}
         `;
 
         const idom = `
 function (ctx) {
 
 "use strict"
-IncrementalDOM.text("hello " + (name) + "!")
-IncrementalDOM.text("" + (name) + ", how are you?")
+IncrementalDOM.text("hello " + (ctx.name) + "!")
+IncrementalDOM.text("" + (ctx.name) + ", how are you?")
+IncrementalDOM.text("goodbye " + (ctx.name))
 }
         `;
 
         const output = Delta.compile(input, { source: true });
-        //console.log('\n-------\n' + output + '\n-------\n');
+        //console.log('\n--- actual output ---\n' + output + '\n--- actual output ---\n');
+
         expect(output).to.be.a.string();
         expect(output).to.equal(idom.trim());
         done();
@@ -66,23 +71,12 @@ IncrementalDOM.elementClose("div")
     test('default output will be the rendered function (omitting the "source" option)', (done) => {
 
         const input = `
-hello {{ name }}!
-hello again {{ name }}!
-        `;
-
-        const idom = `
-function anonymous(ctx
-/**/) {
-"use strict"
-IncrementalDOM.text("hello " + (name) + "!")
-IncrementalDOM.text("hello again " + (name) + "!")
-}
+hello {{ ctx.name }}!
+hello again {{ ctx.name }}!
         `;
 
         const output = Delta.compile(input);
-        //console.log('\n-------\n' + output.toString() + '\n-------\n');
         expect(output).to.be.a.function();
-        expect(output.toString()).to.equal(idom.trim());
         done();
     });
 
@@ -90,14 +84,14 @@ IncrementalDOM.text("hello again " + (name) + "!")
     test('custom function name (default is undefined, which will output an anonymous function)', (done) => {
 
         const input = `
-hello {{ name }}!
+hello {{ ctx.name }}!
         `;
 
         const idom = `
 function helloFn(ctx) {
 
 "use strict"
-IncrementalDOM.text("hello " + (name) + "!")
+IncrementalDOM.text("hello " + (ctx.name) + "!")
 }
         `;
 
@@ -112,11 +106,11 @@ IncrementalDOM.text("hello " + (name) + "!")
 
         const input = `
 <div>
-    hello {{ name }}!
+    hello {{ ctx.name }}!
 
 
     <span>empty lines between elements will be ignored</span>
-    goodbye {{ name }}
+    goodbye {{ ctx.name }}
 </div>
         `;
 
@@ -125,11 +119,11 @@ function (ctx) {
 
 "use strict"
 IncrementalDOM.elementOpen("div")
-IncrementalDOM.text("    hello " + (name) + "!")
+IncrementalDOM.text("    hello " + (ctx.name) + "!")
 IncrementalDOM.elementOpen("span")
 IncrementalDOM.text("empty lines between elements will be ignored")
 IncrementalDOM.elementClose("span")
-IncrementalDOM.text("    goodbye " + (name))
+IncrementalDOM.text("    goodbye " + (ctx.name))
 IncrementalDOM.elementClose("div")
 }
         `;
@@ -161,23 +155,23 @@ function (ctx) {
     });
 
 
-    test('empty lines can be taken into account using "includeEmptyLines": true (default value is false)', (done) => {
+    test('empty lines can be included using "includeEmptyLines": true (default value is false)', (done) => {
 
         const input = `
-hello {{ name }}!
+hello {{ ctx.name }}!
 
 
-hello again {{ name }}!
+hello again {{ ctx.name }}!
         `;
 
         const idom = `
 function (ctx) {
 
 "use strict"
-IncrementalDOM.text("hello " + (name) + "!")
+IncrementalDOM.text("hello " + (ctx.name) + "!")
 IncrementalDOM.text("")
 IncrementalDOM.text("")
-IncrementalDOM.text("hello again " + (name) + "!")
+IncrementalDOM.text("hello again " + (ctx.name) + "!")
 }
         `;
 
@@ -188,23 +182,23 @@ IncrementalDOM.text("hello again " + (name) + "!")
     });
 
 
-    test('custom interpolation tokens', (done) => {
+    test('custom interpolation tokens for expressions', (done) => {
 
         const input = `
-hello { name }!
-hello again { name }!
+hello { ctx.name }!
+hello again { ctx.name }!
         `;
 
         const idom = `
 function (ctx) {
 
 "use strict"
-IncrementalDOM.text("hello " + (name) + "!")
-IncrementalDOM.text("hello again " + (name) + "!")
+IncrementalDOM.text("hello " + (ctx.name) + "!")
+IncrementalDOM.text("hello again " + (ctx.name) + "!")
 }
         `;
 
-        const output = Delta.compile(input, { source: true, interpolate : /{([\s\S]+?)}|$/g });
+        const output = Delta.compile(input, { source: true, expressionStart: '{', expressionEnd: '}' });
         //console.log('\n-------\n' + output + '\n-------\n');
         expect(output).to.be.a.string();
         expect(output).to.equal(idom.trim());

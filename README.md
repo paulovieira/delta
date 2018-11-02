@@ -4,7 +4,7 @@ Delta - template engine for incremental dom
 
 ### Introduction 
 
-This library compiles plain old html strings into the corresponding [incremental dom](http://google.github.io/incremental-dom/) renderer function (to used with the [patch](http://google.github.io/incremental-dom/#api/patch) method from Incremental DOM). 
+This library compiles plain old html strings into the corresponding [incremental dom](http://google.github.io/incremental-dom/) renderer function (to used with the [patch](http://google.github.io/incremental-dom/#api/patch) method). 
 
 Here is the Hello World example:
 
@@ -22,7 +22,7 @@ The output from `Delta.compile` is the renderer function to be given to `Increme
 ```js
 const renderer = Delta.compile(html);
 
-const el = document.getElementByTagName("body");
+const el = document.getElementsByTagName("body");
 const context = { name: "earth", color: "blue"  };
 
 IncrementalDOM.patch(el, renderer, context);  // change the DOM
@@ -97,22 +97,6 @@ function anonymous(ctx
 
 
 Example with @param:
-
-```html
-<div>
-  hello world 
-</div>
-```
-
-```js
-function anonymous(ctx
-/**/) {
-
-  elementOpen('div')
-  text('\n  hello world \n')
-  elementClose('div')
-}
-```
 
 
 ```html

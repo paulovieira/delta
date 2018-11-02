@@ -1,3 +1,5 @@
+'use strict';
+
 const Lab = require('lab');
 const Code = require('code');
 const Delta = require('../lib');
@@ -97,6 +99,32 @@ IncrementalDOM.text("goodbye!")
 
         const output = Delta.compile(input, { source: true });
         console.log('\n-------\n' + output + '\n-------\n');
+        expect(output).to.equal(idom.trim());
+        done();
+    });
+
+
+    test('"script" element with empty contents is ignored', (done) => {
+
+        const input = `
+<script>
+
+</script>
+
+
+hello {{ toUpper(ctx.name) }}!
+        `;
+
+        const idom = `
+function (ctx) {
+
+"use strict"
+IncrementalDOM.text("hello " + (toUpper(ctx.name)) + "!")
+}
+        `;
+
+        const output = Delta.compile(input, { source: true });
+        //console.log('\n-------\n' + output + '\n-------\n');
         expect(output).to.equal(idom.trim());
         done();
     });

@@ -1,3 +1,5 @@
+'use strict';
+
 const Lab = require('lab');
 const Code = require('code');
 const Delta = require('../lib');
@@ -7,10 +9,10 @@ const suite = lab.suite;
 const test = lab.test;
 const expect = Code.expect;
 
-suite('args', () => {
+suite('parameters', () => {
 
 
-    test('one custom  argument', (done) => {
+    test('one custom parameter', (done) => {
 
         const input = `
 @param firstName
@@ -33,7 +35,7 @@ IncrementalDOM.text("hello " + (firstName) + "!")
     });
 
 
-    test('one custom argument and some new lines after it', (done) => {
+    test('one custom parameter and some empty lines after it', (done) => {
 
         const input = `
 @param firstName
@@ -41,14 +43,14 @@ IncrementalDOM.text("hello " + (firstName) + "!")
 
 
 
-hello {{ firstName }}!
+hello {{ firstName }}   !
         `;
 
         const idom = `
 function (firstName) {
 
 "use strict"
-IncrementalDOM.text("hello " + (firstName) + "!")
+IncrementalDOM.text("hello " + (firstName) + "   !")
 }
         `;
 
@@ -58,20 +60,20 @@ IncrementalDOM.text("hello " + (firstName) + "!")
         done();
     });
 
-    test('two custom arguments', (done) => {
+    test('two custom parameter', (done) => {
 
         const input = `
-@param firstName
-@param lastName
+@param $firstName
+@param      _lastName
 
-hello {{ firstName }} {{ lastName }}!
+hello {{ $firstName }} {{ _lastName }}!
         `;
 
         const idom = `
-function (firstName,lastName) {
+function ($firstName,_lastName) {
 
 "use strict"
-IncrementalDOM.text("hello " + (firstName) + " " + (lastName) + "!")
+IncrementalDOM.text("hello " + ($firstName) + " " + (_lastName) + "!")
 }
         `;
 
@@ -82,7 +84,7 @@ IncrementalDOM.text("hello " + (firstName) + " " + (lastName) + "!")
     });
 
 
-    test('one custom argument and some text before an element', (done) => {
+    test('one custom parameter and some plain text before the first element', (done) => {
 
         const input = `
 @param firstName
@@ -110,7 +112,7 @@ IncrementalDOM.elementClose("b")
     });
 
 
-    test('an empty template with a custom argument is a noop', (done) => {
+    test('an empty template with a custom parameter is a noop', (done) => {
 
         const input = `
 @param firstName
@@ -132,7 +134,7 @@ function (firstName) {
     });
 
 
-    test('the parameter line must start with the correct prefix', (done) => {
+    test('a line in a parameter declaration must start with @', (done) => {
 
         const input = `
 param firstName
@@ -156,19 +158,19 @@ IncrementalDOM.text("hello " + (firstName) + "!")
     });
 
 
-    test('if there is line starting with "@param" after the parameters section, it will be considered as regular text', (done) => {
+    test('a line starting with "@param" after the parameters section will be treated as regular text', (done) => {
 
         const input = `
 @param firstName
 
-@param i-will-be-a-regular-text-element!
+@param lastName!
         `;
 
         const idom = `
 function (firstName) {
 
 "use strict"
-IncrementalDOM.text("@param i-will-be-a-regular-text-element!")
+IncrementalDOM.text("@param lastName!")
 }
         `;
 
@@ -179,7 +181,7 @@ IncrementalDOM.text("@param i-will-be-a-regular-text-element!")
     });
 
 
-    test('if an element is used before the parameters section, the parameters will be regular text elements (exception is the comment element, see the next test)', (done) => {
+    test('if an element is used before the parameters declaration block, the parameters will be considered regular text (exception is the comment element)', (done) => {
 
         const input = `
 <span></span>
@@ -209,7 +211,7 @@ IncrementalDOM.text("Hello " + (firstName) + " " + (lastName))
     });
 
 
-    test('comments can be used before the parameters section', (done) => {
+    test('comments can be used before the parameters declaration block', (done) => {
 
         const input = `
 <!--  a comment 
@@ -241,13 +243,13 @@ IncrementalDOM.text("Hello " + (firstName) + " " + (lastName))
     });
 
 
-    test('the names of the arguments cannot be repeated', (done) => {
+    test('parameters cannot be repeated', (done) => {
 
         const input = `
 @param firstName
 @param firstName
 
-an error will be thrown...
+<b>this won't compile</b>
         `;
 
         const willThrow = function() {
@@ -255,18 +257,18 @@ an error will be thrown...
             Delta.compile(input, { source: true });
         };
 
-        expect(willThrow).to.throw('Argument names cannot be repeated');
+        expect(willThrow).to.throw('Parameter "firstName" is repeated');
         done();
     });
 
 
-    test('the names of the arguments must start with "@param"', (done) => {
+    test('a parameter declaration must start with "@param"', (done) => {
 
         const input = `
 @param firstName
-param secondName
+param lastName
 
-an error will be thrown...
+<b>this won't compile</b>
         `;
 
         const willThrow = function() {
@@ -274,17 +276,17 @@ an error will be thrown...
             Delta.compile(input, { source: true });
         };
 
-        expect(willThrow).to.throw('Arguments should be declared in the form: "@param argName"');
+        expect(willThrow).to.throw('Parameters should be declared in the form: "@param paramName"');
         done();
     });
 
 
-    test('arguments must be declared in the format "@param argName"', (done) => {
+    test('a parameter declaration must be in the format "@param paramName"', (done) => {
 
         const input = `
-@param firstName secondName
+@param firstName lastName
 
-an error will be thrown...
+<b>this won't compile</b>
         `;
 
         const willThrow = function() {
@@ -292,17 +294,17 @@ an error will be thrown...
             Delta.compile(input, { source: true });
         };
 
-        expect(willThrow).to.throw('Arguments should be declared in the form: "@param argName"');
+        expect(willThrow).to.throw('Parameters should be declared in the form: "@param paramName"');
         done();
     });
 
 
-    test('arguments must be declared in the format "@param argName" (2)', (done) => {
+    test('a parameter declaration must be in the format "@param paramName"', (done) => {
 
         const input = `
 @param
 
-an error will be thrown...
+<b>this won't compile</b>
         `;
 
         const willThrow = function() {
@@ -310,19 +312,19 @@ an error will be thrown...
             Delta.compile(input, { source: true });
         };
 
-        expect(willThrow).to.throw('Arguments should be declared in the form: "@param argName"');
+        expect(willThrow).to.throw('Parameters should be declared in the form: "@param paramName"');
         done();
     });
 
 
-    test('if the first line of the parameters section does not start with "@param", it will be considered regular text (and the other lines too)', (done) => {
+    test('parameters declaration block must start with "@param" (otherwise will be trated as regular text)', (done) => {
 
         const input = `
 param firstName
 @param lastName
 
 Hello {{ firstName }} {{ lastName }}
-You are undefined!
+You are undefined, sir!
         `;
 
         const idom = `
@@ -332,7 +334,7 @@ function (ctx) {
 IncrementalDOM.text("param firstName")
 IncrementalDOM.text("@param lastName")
 IncrementalDOM.text("Hello " + (firstName) + " " + (lastName))
-IncrementalDOM.text("You are undefined!")
+IncrementalDOM.text("You are undefined, sir!")
 }
         `;
 
@@ -341,4 +343,23 @@ IncrementalDOM.text("You are undefined!")
         expect(output).to.equal(idom.trim());
         done();
     });
+
+
+    test('a parameter declaration must be be a valid identifier', (done) => {
+
+        const input = `
+@param @firstName
+
+
+        `;
+
+        const willThrow = function() {
+
+            Delta.compile(input, { source: true });
+        };
+
+        expect(willThrow).to.throw('"@firstName" is not a valid identifier');
+        done();
+    });
+
 });

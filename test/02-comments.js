@@ -1,3 +1,5 @@
+'use strict';
+
 const Lab = require('lab');
 const Code = require('code');
 const Delta = require('../lib');
@@ -47,7 +49,7 @@ IncrementalDOM.elementClose("b")
     });
 
 
-    test('comments in html can be discarded with the "includeComments: false" option (default value is true)', (done) => {
+    test('comments in javascript can be discarded', (done) => {
 
         const input = `
 <!-- some comment at the top -->
@@ -65,7 +67,10 @@ IncrementalDOM.text("hello again! the comments are gone...")
 }
         `;
 
-        const output = Delta.compile(input, { source: true, includeComments: false });
+        const output = Delta.compile(input, { 
+            source: true, 
+            includeCommentsInJs: false // default value is true
+        });
         //console.log('\n-------\n' + output + '\n-------\n');
         expect(output).to.equal(idom.trim());
         done();

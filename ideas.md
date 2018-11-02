@@ -1,3 +1,25 @@
+-arbitrary js statements can be inserted in 2 ways:
+    -1) using a line prefix. Example: ".  var i = 0; i++;" (the whole line must consist in the prefix followed by the statement)
+    -2) using interpolation tokens: {% var i = 0; i++; %}
+    -note: using tokens we could have: <code> var i = 0; i++; </code>
+
+
+TODO: 
+1) if we have both statementStart and statementEnd, in the preprocessing just replace all ocurrences of those tags with "<code>" and "</code>". The DOM parser will then create a "code" tag in the tree.
+2) if we have just statementStart, in the preprocessing find all lines that start with that tag (after trim?), replace it the <code> and append </code> in the end of the line
+
+
+-since the html tags and text will be cnverted into js calls, we can also insert arbitrary js code inside the html; that code will simply be copied as is into the renderer function. 
+This can be done in 2 ways
+-using a marker at the begginig of the string (which can be a unicode character, like a bullet)
+-using regular tokens (like the classic string template libraries, underscore)
+
+-handle cases of nested tokens  {{ xyz {{ abb }} }}   {% for {% something %} %}
+
+-include comments: would make sense to have the comments in the dom, instead of as js comments in the template
+there's an issue in github about this
+
+
 -documentation: http://coffeescript.org/
 
 
@@ -199,3 +221,76 @@ var renderer = Delta.compile(input)
 -the special sttributes should be options:
 skip
 key
+
+
+---
+
+170810
+
+The usage of arbitrary js code inside the html could be done in 3 ways, depending on the option jsDelimiter
+
+3) jsDelimiter is an empty string
+
+this is minimal approach:
+the convention is that any line that doesn't start with an empty space or tab is javacsript code.
+
+Exemplo:
+
+    <ul>
+for(var i = 0; i < 10; i++){
+        <li>
+            {{ ctx.users[i].name }}
+        </li>
+}
+    </ul>
+
+
+this means that all html will necessarily have to idented.
+
+
+1) jsDelimiter is a regexp
+
+this is the familiar way, works like in underscore templates
+
+<ul>
+{%  for(var i = 0; i < 10; i++){  %}
+    <li>
+            {{ ctx.users[i].name }}
+    </li>
+{%  }  %}
+</ul>
+
+compiles to:
+
+
+
+2) jsDelimiter is a string
+
+Make the code cleaner. Works well if the string is a character that easily gets the attention. Example
+
+
+<ul>
+⨁ for(var i = 0; i < 10; i++){
+    <li>
+            {{ ctx.users[i].name }}
+    </li
+⨁ }
+</ul>
+
+ 
+⇒
+⇝
+⇨
+⇾
+
+↦
+→
+⨁
+✋
+☞ 
+
+---
+
+170810
+
+the module just returns the renderer function (as a string or as a function). The integration with the toolchain uses this output in a simple way (in webpack we can write a loader that)

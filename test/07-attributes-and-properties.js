@@ -1,3 +1,5 @@
+'use strict';
+
 const Lab = require('lab');
 const Code = require('code');
 const Delta = require('../lib');
@@ -9,7 +11,7 @@ const expect = Code.expect;
 
 suite('attributes and properties', () => {
 
-    test.only('simple dynamic attribute' , (done) => {
+    test('simple dynamic attribute' , (done) => {
 
         const input = `
 <p class="c" key="{{ ctx.id }}">
@@ -39,7 +41,7 @@ MyIncrementalDOM.elementClose("b")
     });
 
 
-    test('simple static attribute' , (done) => {
+    test.skip('simple static attribute' , (done) => {
 
         const input = `
 <div data-foo="my-foo" data-bar=123>
